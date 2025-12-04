@@ -24,6 +24,8 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/scdapp"
 import topbar from "../vendor/topbar"
+import {loadColorPalette} from './home.js'
+import {createParty} from "./party.js"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
@@ -81,3 +83,71 @@ if (process.env.NODE_ENV === "development") {
   })
 }
 
+let currentCol = "black"
+
+export function changeColor(col) {
+  currentCol = col
+}
+
+
+
+/* Il faut créer la connexion socket et le channel */
+
+
+
+
+let offlineMode = true /* mettre à faux pour jouer en ligne */
+let mouseDown = false
+let previousX = 0
+let previousY = 0
+
+
+function sendData(x, y) {
+  
+  channel.push("position", {x, y}) /* envoie la position de la souris au backend via un channel */
+}
+
+function draw(x, y) {
+  ctx = canvas.getContext("2d")
+
+  ctx.lineWidth = 5
+  ctx.strokeStyle = currentCol
+  ctx.lineCap = "round"
+
+  ctx.beginPath()
+  ctx.moveTo((previousX > 0) ? previousX : x, (previousY > 0) ? previousY : y)
+  ctx.lineTo(x, y)
+
+  ctx.stroke()
+  ctx.closePath()
+
+  previousX = x
+  previousY = y
+}
+
+
+canvas = document.getElementsByTagName("canvas")[0]
+
+function getPos(event) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (event.clientX - rect.left) * (canvas.width / rect.width),
+    y: (event.clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+loadColorPalette()
+
+
+
+canvas.addEventListener("mousedown", function() {mouseDown = true})
+canvas.addEventListener("mouseup", function() {mouseDown = false; previousX = previousY = 0})
+
+canvas.addEventListener("mousemove", e =>  {if (mouseDown) {(offlineMode) ? draw(getPos(e).x, getPos(e).y) : sendData(getPos(e).x, getPos(e).y)}})
+
+/* ca va être qqch comme ça pour récupérer les données */
+channel.on("position", (pos) => {
+  console.log("Position reçue :", pos)
+
+  draw(pos.x, pos.y)
+})

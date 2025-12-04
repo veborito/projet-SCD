@@ -1,5 +1,15 @@
+<div class="flex justify-end">
+<div class="p-4">
+<button onclick="createParty()" class="p-4 bg-orange-300 rounded-xl text-white hover:bg-orange-200">Créer une party</button>
+<button onclick="joinParty()" class="p-4 outline-2 outline-orange-300 rounded-xl text-orange-300 hover:bg-orange-200 hover:text-white hover:outline-0">Rejoindre une party</button>
+</div>
+</div>
 <div class="grid grid-cols-[1fr_2fr_1fr] h-full gap-5 text-center p-10">
-  <div class="p-4 row-span-2 bg-orange-100 rounded-lg">Palette de dessin</div>
+  <div class="p-4 row-span-2 bg-orange-100 rounded-lg">
+  <p>Palette de couleurs</p>
+  <div class="flex flex-wrap gap-5 justify-center p-5 clrpalette">
+  </div>
+  </div>
   <div class="p-4">
   <p>Au tour de Dano de dessiner</p>
   <p>Il reste 1 minutes!</p>
@@ -7,7 +17,7 @@
   </div>
 
   <div class="p-4"></div>
-  <canvas class="p-4 row-span-2 w-full rounded-lg border-1 border-gray"></canvas>
+  <canvas class="row-span-2 w-full rounded-lg border-1 border-gray"></canvas>
   <div class="p-4"></div>
 
   <div class="p-4 bg-orange-100 rounded-lg">Équipiers</div>
