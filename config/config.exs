@@ -8,7 +8,6 @@
 import Config
 
 config :scdapp,
-  ecto_repos: [Scdapp.Repo],
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint

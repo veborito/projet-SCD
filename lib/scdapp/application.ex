@@ -9,7 +9,6 @@ defmodule Scdapp.Application do
   def start(_type, _args) do
     children = [
       ScdappWeb.Telemetry,
-      Scdapp.Repo,
       {DNSCluster, query: Application.get_env(:scdapp, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Scdapp.PubSub},
       # Start a worker by calling: Scdapp.Worker.start_link(arg)
