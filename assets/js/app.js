@@ -25,7 +25,12 @@ import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/scdapp"
 import topbar from "../vendor/topbar"
 import {loadColorPalette} from './home.js'
-import {createParty} from "./party.js"
+import * as party from "./party.js"
+
+
+window.createParty = party.createParty
+window.joinParty = party.joinParty
+document.body.className = "bg-orange-50"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
@@ -125,8 +130,7 @@ function draw(x, y) {
   previousY = y
 }
 
-
-canvas = document.getElementsByTagName("canvas")[0]
+let canvas = document.getElementsByTagName("canvas")[0]
 
 function getPos(event) {
   const rect = canvas.getBoundingClientRect();
