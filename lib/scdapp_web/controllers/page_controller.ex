@@ -4,4 +4,8 @@ defmodule ScdappWeb.PageController do
   def home(conn, _params) do
     render(conn, :home)
   end
+
+  def party(conn, %{"party" => party}) do
+    render(conn, :party, party: party)
+  end
 end

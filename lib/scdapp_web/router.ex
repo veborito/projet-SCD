@@ -18,6 +18,7 @@ defmodule ScdappWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/:party", PageController, :party
   end
 
   # Other scopes may use custom stacks.
