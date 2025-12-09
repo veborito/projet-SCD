@@ -8,6 +8,7 @@ defmodule ScdappWeb.Router do
     plug :put_root_layout, html: {ScdappWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug Scdapp.Plugs.Locale, "en"
   end
 
   pipeline :api do
@@ -19,6 +20,8 @@ defmodule ScdappWeb.Router do
 
     get "/", PageController, :home
     get "/:party", PageController, :party
+    get "/hello", HelloController, :index
+    get "/hello/:messenger", HelloController, :show
   end
 
   # Other scopes may use custom stacks.
