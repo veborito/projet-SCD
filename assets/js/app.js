@@ -101,15 +101,16 @@ export function changeColor(col) {
 
 
 
-let offlineMode = true /* mettre à faux pour jouer en ligne */
+let offlineMode = false /* mettre à faux pour jouer en ligne */
 let mouseDown = false
 let previousX = 0
 let previousY = 0
 
 
 function sendData(x, y) {
-  
-  channel.push("position", {x, y}) /* envoie la position de la souris au backend via un channel */
+  console.log({x, y})
+  draw(x, y)
+  // channel.push("position", {x, y}) /* envoie la position de la souris au backend via un channel */
 }
 
 function draw(x, y) {
