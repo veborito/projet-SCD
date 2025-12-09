@@ -14,7 +14,6 @@ defmodule ScdappWeb.Endpoint do
   socket "/live", Phoenix.LiveView.Socket,
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
-
   # Serve at "/" the static files from "priv/static" directory.
   #
   # When code reloading is disabled (e.g., in production),
@@ -50,5 +49,16 @@ defmodule ScdappWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+  plug :introspect
   plug ScdappWeb.Router
+
+  def introspect(conn, _opts) do
+    IO.puts """
+    Verb: #{inspect(conn.method)}
+    Host: #{inspect(conn.host)}
+    Headers: #{inspect(conn.req_headers)}
+    """
+
+    conn
+  end
 end
