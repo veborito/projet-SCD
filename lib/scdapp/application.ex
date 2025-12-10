@@ -14,7 +14,8 @@ defmodule Scdapp.Application do
       # Start a worker by calling: Scdapp.Worker.start_link(arg)
       # {Scdapp.Worker, arg},
       # Start to serve requests, typically the last entry
-      ScdappWeb.Endpoint
+      ScdappWeb.Endpoint,
+      ScdappWeb.Presence,
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

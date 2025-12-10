@@ -125,3 +125,8 @@ body {
   width: 80vw;
   text-align: center;
 }
+
+#presence {
+  height: 50vh;
+  width: 80vw;
+}

@@ -2,7 +2,7 @@
 // you uncomment its entry in "assets/js/app.js".
 
 // Bring in Phoenix channels client library:
-import {Socket} from "phoenix"
+import {Socket, Presence} from "phoenix"
 
 // And connect to the path in "lib/scdapp_web/endpoint.ex". We pass the
 // token for authentication.
@@ -14,9 +14,23 @@ socket.connect()
 
 // Now that you are connected, you can join channels with a topic.
 let channel = socket.channel("room:lobby", {})
+let presence = new Presence(channel)
+
+function renderOnlineUsers(presence) {
+  let response = ""
+
+  presence.list((id, {metas: [first, ...rest]}) => {
+    let count = rest.length + 1
+    response += `<br>${id} (count: ${count})</br>`
+  })
+
+  document.querySelector("#presence").innerHTML = response
+}
+
+presence.onSync(() => renderOnlineUsers(presence))
+
 let chatInput = document.querySelector("#chat-input")
 let messagesContainer = document.querySelector("#messages")
-
 chatInput.addEventListener("keypress", event => {
   if(event.key === 'Enter') {
     channel.push("new_msg", {body: chatInput.value})
