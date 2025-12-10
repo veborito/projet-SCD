@@ -10,7 +10,7 @@ defmodule ScdappWeb.UserSocket do
   # Uncomment the following line to define a "room:*" topic
   # pointing to the `ScdappWeb.RoomChannel`:
   #
-  # channel "room:*", ScdappWeb.RoomChannel
+  channel "room:*", ScdappWeb.RoomChannel
   #
   # To create a channel file, use the mix task:
   #

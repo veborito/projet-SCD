@@ -103,3 +103,25 @@
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
 /* This file is for your main application CSS */
+
+div#messages {
+  height: 70vh;
+  width: 80vw;
+  border: 2px solid black;
+  border-radius: 15px;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#chat-input {
+  border: 3px solid black;
+  height: 10vh;
+  width: 80vw;
+  text-align: center;
+}

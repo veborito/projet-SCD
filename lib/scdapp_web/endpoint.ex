@@ -1,7 +1,7 @@
 defmodule ScdappWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :scdapp
 
-  socket "/socket", HelloWeb.UserSocket,
+  socket "/socket", ScdappWeb.UserSocket,
     websocket: true,
     longpoll: false
 
