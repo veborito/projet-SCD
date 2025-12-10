@@ -1,6 +1,7 @@
 defmodule ScdappWeb.HelloController do
   use ScdappWeb, :controller
 
+  plug ScdappWeb.Plugs.Locale, "en" when action in [:index]
   def index(conn, _params) do
     render(conn, :index)
   end

@@ -8,7 +8,7 @@ defmodule ScdappWeb.Router do
     plug :put_root_layout, html: {ScdappWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug Scdapp.Plugs.Locale, "en"
+    plug ScdappWeb.Plugs.Locale, "en"
   end
 
   pipeline :api do
