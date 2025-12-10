@@ -1,4 +1,4 @@
-defmodule Scdapp.Plugs.Locale do
+defmodule ScdappWeb.Plugs.Locale do
   import Plug.Conn
 
   @locales ["en", "fr", "de"]
