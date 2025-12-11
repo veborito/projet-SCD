@@ -21,7 +21,7 @@
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
 import "phoenix_html"
 // // Establish Phoenix Socket and LiveView configuration.
-import {Socket} from "phoenix"
+import {Socket, Presence} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/scdapp"
 import topbar from "../vendor/topbar"
@@ -88,12 +88,84 @@ if (process.env.NODE_ENV === "development") {
     window.liveReloader = reloader
   })
 }
+// ---------------------------------------------------------------
+// ------------------ DEBUT du code ------------------------------
+// ---------------------------------------------------------------
 
-import {Socket, Presence} from "phoenix"
+
+let currentCol = "black"
+
+export function changeColor(col) {
+  currentCol = col
+}
+
+let offlineMode = false /* mettre à faux pour jouer en ligne */
+let mouseDown = false
+let previousX = 0
+let previousY = 0
+let posList = []
+
+
+function toCSV(list) {
+  let str = list.toString()
+  return str.substring(1, str.length - 1)
+}
+
+function sendData(x, y) {
+  posList.push([x, y])
+  otherChannel.push("new_pos", {body: posList})
+  draw(x, y)
+}
+
+function draw(x, y) {
+  ctx = canvas.getContext("2d")
+
+  ctx.lineWidth = 5
+  ctx.strokeStyle = currentCol
+  ctx.lineCap = "round"
+
+  ctx.beginPath()
+  ctx.moveTo((previousX > 0) ? previousX : x, (previousY > 0) ? previousY : y)
+  ctx.lineTo(x, y)
+
+  ctx.stroke()
+  ctx.closePath()
+
+  previousX = x
+  previousY = y
+}
+
+let canvas = document.getElementsByTagName("canvas")[0]
+
+function getPos(event) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (event.clientX - rect.left) * (canvas.width / rect.width),
+    y: (event.clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+loadColorPalette()
+
+
+
+canvas.addEventListener("mousedown", function() {mouseDown = true})
+canvas.addEventListener("mouseup", function() {mouseDown = false; previousX = previousY = 0})
+
+canvas.addEventListener("mousemove", e =>  {if (mouseDown) {(offlineMode) ? draw(getPos(e).x, getPos(e).y) : sendData(getPos(e).x, getPos(e).y)}})
 
 let socket = new Socket("/socket", {authToken: window.userToken})
-let channel = socket.channel("room:lobby", {name: window.location.search.split("=")[1]})
+
+socket.connect()
+
+let channel = socket.channel("room:lobby", {
+  name: window.location.search.split("=")[1],
+})
+
+let otherChannel = socket.channel("room:canvas", {})
+
 let presence = new Presence(channel)
+
 
 function renderOnlineUsers(presence) {
   let response = ""
@@ -103,82 +175,20 @@ function renderOnlineUsers(presence) {
     response += `<br>${id} (count: ${count})</br>`
   })
 
-  document.querySelector("#presence").innerHTML = response
+  document.querySelector("#team").innerHTML = response
 }
-
-socket.connect()
 
 presence.onSync(() => renderOnlineUsers(presence))
 
+otherChannel.on("new_pos", payload => {
+  let positions = payload.body[0]
+  draw(positions[0], positions[1])
+})
+
 channel.join()
+  .receive("ok", resp => { console.log("Joined successfully", resp) })
+  .receive("error", resp => { console.log("Unable to join", resp) })
 
-
-// let currentCol = "black"
-
-// export function changeColor(col) {
-//   currentCol = col
-// }
-
-
-
-// /* Il faut créer la connexion socket et le channel */
-
-
-
-
-// let offlineMode = false /* mettre à faux pour jouer en ligne */
-// let mouseDown = false
-// let previousX = 0
-// let previousY = 0
-
-
-// function sendData(x, y) {
-//   console.log({x, y})
-//   draw(x, y)
-//   // channel.push("position", {x, y}) /* envoie la position de la souris au backend via un channel */
-// }
-
-// function draw(x, y) {
-//   ctx = canvas.getContext("2d")
-
-//   ctx.lineWidth = 5
-//   ctx.strokeStyle = currentCol
-//   ctx.lineCap = "round"
-
-//   ctx.beginPath()
-//   ctx.moveTo((previousX > 0) ? previousX : x, (previousY > 0) ? previousY : y)
-//   ctx.lineTo(x, y)
-
-//   ctx.stroke()
-//   ctx.closePath()
-
-//   previousX = x
-//   previousY = y
-// }
-
-// let canvas = document.getElementsByTagName("canvas")[0]
-
-// function getPos(event) {
-//   const rect = canvas.getBoundingClientRect();
-//   return {
-//     x: (event.clientX - rect.left) * (canvas.width / rect.width),
-//     y: (event.clientY - rect.top) * (canvas.height / rect.height)
-//   };
-// }
-
-// loadColorPalette()
-
-
-
-// canvas.addEventListener("mousedown", function() {mouseDown = true})
-// canvas.addEventListener("mouseup", function() {mouseDown = false; previousX = previousY = 0})
-
-// canvas.addEventListener("mousemove", e =>  {if (mouseDown) {(offlineMode) ? draw(getPos(e).x, getPos(e).y) : sendData(getPos(e).x, getPos(e).y)}})
-
-// /* ca va être qqch comme ça pour récupérer les données */
-// channel.on("position", (pos) => {
-//   console.log("Position reçue :", pos)
-
-//   draw(pos.x, pos.y)
-// })
-
+otherChannel.join()
+  .receive("ok", resp => { console.log("Joined successfully", resp) })
+  .receive("error", resp => { console.log("Unable to join", resp) })
