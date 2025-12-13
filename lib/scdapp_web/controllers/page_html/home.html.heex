@@ -8,7 +8,7 @@
     <button onclick="joinParty()" class="p-4 outline-2 outline-orange-500 rounded-xl text-orange-500 hover:bg-orange-300 hover:text-white hover:outline-0">Rejoindre une party</button>
   </div>
 </header>
-<main class="">
+<main>
   <div id="left" class="p-4 row-span-2 bg-orange-100 rounded-lg">
     <h2 class="text-orange-500 text-lg">Palette de couleurs</h2>
     <div class="flex flex-wrap gap-5 justify-center p-5 clrpalette"></div>
@@ -20,11 +20,12 @@
     <p class="text-4xl text-orange-500">Au tour de Dano de dessiner</p>
     <p class="text-3xl p-4 text-orange-400">Il reste 1 minutes!</p>
   </div> --%>
-
-  <canvas class="row-span-2 w-full rounded-lg border-1 border-gray"></canvas>
-  <div id="chat">
-    <div id="messages" role="log" aria-live="polite"></div>
-    <input id="chat-input" type="text">
+  <div id="container">
+    <canvas class="row-span-2 w-full rounded-lg border-1 border-gray"></canvas>
+    <div id="chat">
+      <div id="messages" role="log" aria-live="polite"></div>
+      <input id="chat-input" type="text">
+    </div>
   </div>
 
 </main>
