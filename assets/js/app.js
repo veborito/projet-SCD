@@ -99,59 +99,51 @@ export function changeColor(col) {
   currentCol = col
 }
 
-let mouseDown = false
-let previousX = 0
-let previousY = 0
-let posList = []
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");  
+let drawing = false;
+let localPoints = [];
 
+canvas.width = canvas.clientWidth;
+canvas.height = canvas.clientHeight;
 
-function sendData(x, y) {
-  posList.push([x, y])
-  otherChannel.push("new_pos", {body: [x, y, currentCol]})
-  draw(x, y, false)
-}
+window.addEventListener("resize", () => {
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+})
+canvas.addEventListener("mousedown", () => drawing = true);
+canvas.addEventListener("mouseup", () => {
+  drawing = false
+  localPoints.push(null);
+});
 
-function draw(x, y, remote) {
-  ctx = canvas.getContext("2d")
+canvas.addEventListener("mousemove", event => {
 
-  ctx.lineWidth = 5
-  ctx.strokeStyle = currentCol
-  ctx.lineCap = "round"
-
-  if (remote === false) {
-    previousX = 0
-    previousY = 0
+  if (!drawing) {
+    return;
   }
+  let rect = canvas.getBoundingClientRect();
+  let x = event.clientX - rect.left;
+  let y = event.clientY - rect.top;
+  // console.log({x, y})
+  localPoints.push({x, y});
+  otherChannel.push("new_pos", {body: [localPoints, currentCol]})
+  draw(localPoints, currentCol);
+})
 
-  ctx.beginPath()
-  ctx.moveTo((previousX > 0) ? previousX : x, (previousY > 0) ? previousY : y)
-  ctx.lineTo(x, y)
-
+function draw(points, color) {
+  if (points.length < 2 || points.at(-2) == null)
+    return;
+  ctx.strokeStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(points.at(-2).x, points.at(-2).y);
+  ctx.lineTo(points.at(-1).x, points.at(-1).y);
+  ctx.closePath();
   ctx.stroke()
-  ctx.closePath()
-
-  previousX = x
-  previousY = y
 }
 
-let canvas = document.getElementsByTagName("canvas")[0]
-
-function getPos(event) {
-  const rect = canvas.getBoundingClientRect();
-  return {
-    x: (event.clientX - rect.left) * (canvas.width / rect.width),
-    y: (event.clientY - rect.top) * (canvas.height / rect.height)
-  };
-}
 
 loadColorPalette()
-
-
-
-canvas.addEventListener("mousedown", function() {mouseDown = true})
-canvas.addEventListener("mouseup", function() {mouseDown = false; previousX = previousY = 0})
-
-canvas.addEventListener("mousemove", e =>  {if (mouseDown) {sendData(getPos(e).x, getPos(e).y)}})
 
 let socket = new Socket("/socket", {authToken: window.userToken})
 
@@ -202,8 +194,9 @@ function renderOnlineUsers(presence) {
 presence.onSync(() => renderOnlineUsers(presence))
 
 otherChannel.on("new_pos", payload => {
-  let data = payload.body
-  draw(data[0], data[1], true, data[2])
+  let remotePoints = payload.body[0];
+  let color = payload.body[1]
+  draw(remotePoints, color)
 })
 
 channel.join()
