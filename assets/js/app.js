@@ -99,30 +99,29 @@ export function changeColor(col) {
   currentCol = col
 }
 
-let offlineMode = false /* mettre à faux pour jouer en ligne */
 let mouseDown = false
 let previousX = 0
 let previousY = 0
 let posList = []
 
 
-function toCSV(list) {
-  let str = list.toString()
-  return str.substring(1, str.length - 1)
-}
-
 function sendData(x, y) {
   posList.push([x, y])
-  otherChannel.push("new_pos", {body: posList})
-  draw(x, y)
+  otherChannel.push("new_pos", {body: [x, y, currentCol]})
+  draw(x, y, false)
 }
 
-function draw(x, y) {
+function draw(x, y, remote) {
   ctx = canvas.getContext("2d")
 
   ctx.lineWidth = 5
   ctx.strokeStyle = currentCol
   ctx.lineCap = "round"
+
+  if (remote === false) {
+    previousX = 0
+    previousY = 0
+  }
 
   ctx.beginPath()
   ctx.moveTo((previousX > 0) ? previousX : x, (previousY > 0) ? previousY : y)
@@ -152,7 +151,7 @@ loadColorPalette()
 canvas.addEventListener("mousedown", function() {mouseDown = true})
 canvas.addEventListener("mouseup", function() {mouseDown = false; previousX = previousY = 0})
 
-canvas.addEventListener("mousemove", e =>  {if (mouseDown) {(offlineMode) ? draw(getPos(e).x, getPos(e).y) : sendData(getPos(e).x, getPos(e).y)}})
+canvas.addEventListener("mousemove", e =>  {if (mouseDown) {sendData(getPos(e).x, getPos(e).y)}})
 
 let socket = new Socket("/socket", {authToken: window.userToken})
 
@@ -161,6 +160,28 @@ socket.connect()
 let channel = socket.channel("room:lobby", {
   name: window.location.search.split("=")[1],
 })
+
+let chatInput = document.querySelector("#chat-input")
+let messagesContainer = document.querySelector("#messages")
+chatInput.addEventListener("keypress", event => {
+  if(event.key === 'Enter') {
+    channel.push("new_msg", {body: [chatInput.value, window.location.search.split("=")[1]]})
+    chatInput.value = ""
+  }
+})
+
+channel.on("new_msg", payload => {
+  let messageItem = document.createElement("p")
+  let date = new Date()
+  let seconds = String(date.getSeconds()).padStart(2, '0');
+  let minutes = String(date.getMinutes()).padStart(2, '0');
+  let hour = String(date.getHours()).padStart(2, '0');
+  let time = `${hour}:${minutes}:${seconds}`
+
+  messageItem.innerText = `[${time}] ${payload.body[1]}:  ${payload.body[0]}`
+  messagesContainer.appendChild(messageItem)
+})
+
 
 let otherChannel = socket.channel("room:canvas", {})
 
@@ -172,7 +193,7 @@ function renderOnlineUsers(presence) {
 
   presence.list((id, {metas: [first, ...rest]}) => {
     let count = rest.length + 1
-    response += `<br>${id} (count: ${count})</br>`
+    response += `<br>${id}</br>`
   })
 
   document.querySelector("#team").innerHTML = response
@@ -181,8 +202,8 @@ function renderOnlineUsers(presence) {
 presence.onSync(() => renderOnlineUsers(presence))
 
 otherChannel.on("new_pos", payload => {
-  let positions = payload.body[0]
-  draw(positions[0], positions[1])
+  let data = payload.body
+  draw(data[0], data[1], true, data[2])
 })
 
 channel.join()
