@@ -107,10 +107,6 @@ let localPoints = [];
 canvas.width = canvas.clientWidth;
 canvas.height = canvas.clientHeight;
 
-window.addEventListener("resize", () => {
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
-})
 canvas.addEventListener("mousedown", () => drawing = true);
 canvas.addEventListener("mouseup", () => {
   drawing = false
@@ -164,6 +160,7 @@ chatInput.addEventListener("keypress", event => {
 
 channel.on("new_msg", payload => {
   let messageItem = document.createElement("p")
+  let messBox = document.getElementById("messages");
   let date = new Date()
   let seconds = String(date.getSeconds()).padStart(2, '0');
   let minutes = String(date.getMinutes()).padStart(2, '0');
@@ -172,6 +169,7 @@ channel.on("new_msg", payload => {
 
   messageItem.innerText = `[${time}] ${payload.body[1]}:  ${payload.body[0]}`
   messagesContainer.appendChild(messageItem)
+  messBox.scrollTop = messBox.scrollHeight;   
 })
 
 
