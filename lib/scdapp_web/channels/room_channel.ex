@@ -17,7 +17,7 @@ defmodule ScdappWeb.RoomChannel do
 
   def handle_in("new_msg", %{"body" => body}, socket) do
     broadcast!(socket, "new_msg", %{body: body})
-    {:reply, socket}
+    {:reply, :ok, socket}
   end
 
   def handle_in("new_pos", %{"body" => body}, socket) do
