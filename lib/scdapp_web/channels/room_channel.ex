@@ -17,7 +17,9 @@ defmodule ScdappWeb.RoomChannel do
 
   def handle_in("new_msg", %{"body" => body}, socket) do
     broadcast!(socket, "new_msg", %{body: body})
-    {:reply, :ok, socket}
+    crdt = Scdapp.Application.lookup_crdt(Atom.to_string(Node.self()))
+    DeltaCrdt.put(crdt, "canvas", body)
+    {:reply, socket}
   end
 
   def handle_in("new_pos", %{"body" => body}, socket) do
@@ -25,8 +27,6 @@ defmodule ScdappWeb.RoomChannel do
     {:noreply, socket}
   end
 
-
-  @spec handle_info(:after_join, Phoenix.Socket.t()) :: {:noreply, Phoenix.Socket.t()}
   def handle_info(:after_join, socket) do
     {:ok, _} =
       Presence.track(socket, socket.assigns.name, %{

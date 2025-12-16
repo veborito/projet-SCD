@@ -22,6 +22,8 @@ defmodule ScdappWeb.Router do
     get "/hello", HelloController, :index
     get "/hello/:message", HelloController, :show
     get "/chat", ChatController, :chat
+
+    
   end
 
   # Other scopes may use custom stacks.
