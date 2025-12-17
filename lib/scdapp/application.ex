@@ -11,7 +11,6 @@ defmodule Scdapp.Application do
       ScdappWeb.Telemetry,
       {Registry, name: Scdapp, keys: :unique},
       {DynamicSupervisor, name: Scdapp.CrdtSupervisor, strategy: :one_for_one},
-      {Task.Supervisor, name: Scdapp.TaskSupervisor},
       {DNSCluster, query: Application.get_env(:scdapp, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Scdapp.PubSub},
       # Start a worker by calling: Scdapp.Worker.start_link(arg)
