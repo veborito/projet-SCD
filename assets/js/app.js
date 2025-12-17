@@ -88,6 +88,7 @@ if (process.env.NODE_ENV === "development") {
     window.liveReloader = reloader
   })
 }
+
 // ---------------------------------------------------------------
 // ------------------ DEBUT du code ------------------------------
 // ---------------------------------------------------------------
@@ -153,21 +154,39 @@ let chatInput = document.querySelector("#chat-input")
 let messagesContainer = document.querySelector("#messages")
 chatInput.addEventListener("keypress", event => {
   if(event.key === 'Enter') {
-    channel.push("new_msg", {body: [chatInput.value, window.location.search.split("=")[1]]})
+    let date = new Date()
+    let seconds = String(date.getSeconds()).padStart(2, '0');
+    let minutes = String(date.getMinutes()).padStart(2, '0');
+    let hour = String(date.getHours()).padStart(2, '0');
+    let time = `${hour}:${minutes}:${seconds}`
+    let data = `[${time}] ${window.location.search.split("=")[1]}`
+    channel.push("new_msg", {body: [chatInput.value, data]})
     chatInput.value = ""
   }
+})
+
+channel.on("messages", payload => {
+  console.log(payload.content)
+  let messBox = document.getElementById("messages");
+  for (let message of payload.content) {
+    let messageItem = document.createElement("p")
+
+    messageItem.innerText = `${message[1]}:  ${message[0]}`
+    messagesContainer.appendChild(messageItem)
+    messBox.scrollTop = messBox.scrollHeight; 
+  }
+})
+
+channel.on("canvas", payload => {
+  console.log("All canvas data received")
+  console.log(payload.content)
 })
 
 channel.on("new_msg", payload => {
   let messageItem = document.createElement("p")
   let messBox = document.getElementById("messages");
-  let date = new Date()
-  let seconds = String(date.getSeconds()).padStart(2, '0');
-  let minutes = String(date.getMinutes()).padStart(2, '0');
-  let hour = String(date.getHours()).padStart(2, '0');
-  let time = `${hour}:${minutes}:${seconds}`
 
-  messageItem.innerText = `[${time}] ${payload.body[1]}:  ${payload.body[0]}`
+  messageItem.innerText = `${payload.body[1]}:  ${payload.body[0]}`
   messagesContainer.appendChild(messageItem)
   messBox.scrollTop = messBox.scrollHeight;   
 })
@@ -182,7 +201,6 @@ function renderOnlineUsers(presence) {
   let response = ""
 
   presence.list((id, {metas: [first, ...rest]}) => {
-    let count = rest.length + 1
     response += `<br>${id}</br>`
   })
 

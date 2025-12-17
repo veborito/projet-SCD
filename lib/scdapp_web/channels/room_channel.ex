@@ -1,6 +1,9 @@
 defmodule ScdappWeb.RoomChannel do
   use Phoenix.Channel
   alias ScdappWeb.Presence
+  require Logger
+
+  @crdt_name Atom.to_string(Node.self())
 
   def join("room:lobby", %{"name" => name}, socket) do
     send(self(), :after_join)
@@ -17,23 +20,28 @@ defmodule ScdappWeb.RoomChannel do
 
   def handle_in("new_msg", %{"body" => body}, socket) do
     broadcast!(socket, "new_msg", %{body: body})
-    crdt = Scdapp.Application.lookup_crdt(Atom.to_string(Node.self()))
-    DeltaCrdt.put(crdt, "canvas", body)
-    {:reply, socket}
+    curr_messages = Scdapp.Crdt.get(@crdt_name, "messages") || []
+    Scdapp.Crdt.put(@crdt_name, "messages", curr_messages ++ [body])
+    {:reply, :ok, socket}
   end
 
   def handle_in("new_pos", %{"body" => body}, socket) do
     broadcast!(socket, "new_pos", %{body: body})
-    {:noreply, socket}
+    Scdapp.Crdt.put(@crdt_name, "canvas", body)
+    {:reply, :ok, socket}
   end
-
+  
   def handle_info(:after_join, socket) do
     {:ok, _} =
       Presence.track(socket, socket.assigns.name, %{
         online_at: inspect(System.system_time(:second))
       })
 
+    messages = Scdapp.Crdt.get(@crdt_name, "messages") || []
+    canvas = List.last(Scdapp.Crdt.get(@crdt_name, "canvas")) || []
     push(socket, "presence_state", Presence.list(socket))
+    push(socket, "messages", %{id: 1, content: messages})
+    push(socket, "canvas", %{id: 2, content: canvas})
     {:noreply, socket}
   end
 end
