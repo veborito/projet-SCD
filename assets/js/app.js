@@ -112,7 +112,8 @@ canvas.addEventListener("mousedown", () => drawing = true);
 canvas.addEventListener("mouseup", () => {
   drawing = false
   localPoints.push({});
-  otherChannel.push("new_pos", {body: [{}, currentCol]})
+  otherChannel.push("new_pos", {body: [localPoints, currentCol]})
+  localPoints = []
 });
 
 canvas.addEventListener("mousemove", event => {
@@ -125,7 +126,6 @@ canvas.addEventListener("mousemove", event => {
   let y = event.clientY - rect.top;
   // console.log({x, y})
   localPoints.push({x, y});
-  otherChannel.push("new_pos", {body: [{x, y}, currentCol]})
   draw(localPoints, currentCol);
 })
 
@@ -210,12 +210,12 @@ function renderOnlineUsers(presence) {
 
 presence.onSync(() => renderOnlineUsers(presence))
 
-let remotePoints = []
-
 otherChannel.on("new_pos", payload => {
-  remotePoints.push(payload.body[0]);
+  let remoteStroke = payload.body[0];
   let color = payload.body[1]
-  draw(remotePoints, color)
+  for (let i = 0; i < remoteStroke.length - 1; i++) {
+    draw([remoteStroke[i],remoteStroke[i + 1]], color)
+  }
 })
 
 channel.join()
