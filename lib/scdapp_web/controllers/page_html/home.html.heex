@@ -1,10 +1,13 @@
-<header class="flex justify-between">
-  <div class="p-4 text-3xl flex">
-    <h2 class="text-orange-500">Phoenix</h2>
-    <h2 class="text-orange-300">Pionnary</h2>
+<header class="w-full bg-orange-100 flex justify-between">
+  <div class="p-4 text-5xl flex items-center justify-center gap-4">
+    <img src={~p"/images/logo.png"} alt="Logo Phoenix" class="h-16 w-auto" />
+    <div class="flex">
+      <h2 class="text-orange-500">Phoenix</h2>
+      <h2 class="text-orange-300">Pionnary</h2>
+    </div>  
   </div>
-  <div class="p-4">
-    <button onclick="createParty()" class="p-4 bg-orange-500 rounded-xl text-white hover:bg-orange-300">Créer une party</button>
+  <div class="p-4 flex item-center justify-center gap-4">
+    <button onclick="createParty()" class="p-4 bg-orange-500 rounded-xl text-white hover:bg-orange-300">Créer une party</button>   
     <button onclick="joinParty()" class="p-4 outline-2 outline-orange-500 rounded-xl text-orange-500 hover:bg-orange-300 hover:text-white hover:outline-0">Rejoindre une party</button>
   </div>
 </header>
@@ -29,7 +32,7 @@
   </div>
 
 </main>
-<footer class="w-full bg-orange-100 text-orange-300 py-8 mt-16">
+<footer class="w-full bg-orange-100 text-orange-300 py-4 mt-16">
   <div class="max-w-6xl mx-auto px-6">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
       
@@ -47,7 +50,7 @@
       </nav>
     </div>
 
-    <div class="border-t border-gray-700 mt-8 pt-4 text-center text-xs text-orange-500">
+    <div class="border-t border-gray-700 mt-4 pt-2 text-center text-xs text-orange-500">
       © 2025 — Ce site est un projet scolaire sans vocation commerciale.
     </div>
 
