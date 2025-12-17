@@ -20,6 +20,13 @@ if System.get_env("PHX_SERVER") do
   config :scdapp, ScdappWeb.Endpoint, server: true
 end
 
+nodes =
+  System.get_env("NODES", "")
+  |> String.split(",", trim: true)
+  |> Enum.map(&String.to_atom/1)
+
+config :scdapp, :nodes, nodes
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
