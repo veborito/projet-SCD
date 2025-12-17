@@ -111,7 +111,8 @@ canvas.height = canvas.clientHeight;
 canvas.addEventListener("mousedown", () => drawing = true);
 canvas.addEventListener("mouseup", () => {
   drawing = false
-  localPoints.push(null);
+  localPoints.push({});
+  otherChannel.push("new_pos", {body: [{}, currentCol]})
 });
 
 canvas.addEventListener("mousemove", event => {
@@ -124,12 +125,12 @@ canvas.addEventListener("mousemove", event => {
   let y = event.clientY - rect.top;
   // console.log({x, y})
   localPoints.push({x, y});
-  otherChannel.push("new_pos", {body: [localPoints, currentCol]})
+  otherChannel.push("new_pos", {body: [{x, y}, currentCol]})
   draw(localPoints, currentCol);
 })
 
 function draw(points, color) {
-  if (points.length < 2 || points.at(-2) == null)
+  if (points.length < 2 || points.at(-2) == {} || points.at(-1) == {})
     return;
   ctx.strokeStyle = color;
   ctx.beginPath();
@@ -209,8 +210,10 @@ function renderOnlineUsers(presence) {
 
 presence.onSync(() => renderOnlineUsers(presence))
 
+let remotePoints = []
+
 otherChannel.on("new_pos", payload => {
-  let remotePoints = payload.body[0];
+  remotePoints.push(payload.body[0]);
   let color = payload.body[1]
   draw(remotePoints, color)
 })
