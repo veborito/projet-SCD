@@ -30,7 +30,7 @@ defmodule ScdappWeb.RoomChannel do
     Scdapp.Crdt.put(@crdt_name, "canvas", body)
     {:reply, :ok, socket}
   end
-  
+
   def handle_info(:after_join, socket) do
     {:ok, _} =
       Presence.track(socket, socket.assigns.name, %{
@@ -38,7 +38,7 @@ defmodule ScdappWeb.RoomChannel do
       })
 
     messages = Scdapp.Crdt.get(@crdt_name, "messages") || []
-    canvas = List.last(Scdapp.Crdt.get(@crdt_name, "canvas")) || []
+    canvas = Scdapp.Crdt.get(@crdt_name, "canvas") || []
     push(socket, "presence_state", Presence.list(socket))
     push(socket, "messages", %{id: 1, content: messages})
     push(socket, "canvas", %{id: 2, content: canvas})
