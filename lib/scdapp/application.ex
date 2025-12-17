@@ -11,6 +11,7 @@ defmodule Scdapp.Application do
       ScdappWeb.Telemetry,
       {Registry, name: Scdapp, keys: :unique},
       {DynamicSupervisor, name: Scdapp.CrdtSupervisor, strategy: :one_for_one},
+      {Task.Supervisor, name: Scdapp.TaskSupervisor},
       {DNSCluster, query: Application.get_env(:scdapp, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Scdapp.PubSub},
       # Start a worker by calling: Scdapp.Worker.start_link(arg)
@@ -20,14 +21,12 @@ defmodule Scdapp.Application do
       ScdappWeb.Presence,
     ]
 
+    opts = [strategy: :one_for_one, name: Scdapp.Supervisor]
+    supervisor = Supervisor.start_link(children, opts)
+
     for node <- Application.fetch_env!(:scdapp, :nodes) do
       Node.connect(node)
     end
-
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Scdapp.Supervisor]
-    supervisor = Supervisor.start_link(children, opts)
 
     create_crdt(Atom.to_string(Node.self()))
 
@@ -51,14 +50,6 @@ defmodule Scdapp.Application do
         crdt: DeltaCrdt.AWLWWMap
       }
     )
-
-    set_neighbours(name)
-  end
-
-  def set_neighbours(name) do
-    for node <- Node.list() do
-      Scdapp.Crdt.set_neighbours(name, Atom.to_string(node))
-    end
   end
 
   def lookup_crdt(name), do: GenServer.whereis(via(name))
