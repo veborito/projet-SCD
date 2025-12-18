@@ -181,6 +181,13 @@ channel.on("messages", payload => {
 channel.on("canvas", payload => {
   console.log("All canvas data received")
   console.log(payload.content)
+  for (let canva of payload.content) {
+    let stroke = canva[0]
+    let color = canva[1]
+    for (let i = 0; i < stroke.length - 1; i++) {
+      draw([stroke[i],stroke[i + 1]], color)
+    }
+  }
 })
 
 channel.on("new_msg", payload => {
